@@ -13,7 +13,6 @@ import 'package:matomo/random_alpha_numeric.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:universal_html/html.dart' as html;
 
 abstract class TraceableStatelessWidget extends StatelessWidget {
   final String name;
@@ -118,15 +117,12 @@ class MatomoTracker {
     _dispatcher = _MatomoDispatcher(url, tokenAuth);
 
     // User agent
-    if (kIsWeb) {
-      userAgent = html.window.navigator.userAgent;
-    } else {
-      try {
-        await FkUserAgent.init();
-        userAgent = FkUserAgent.webViewUserAgent;
-      } catch (_) {
-        userAgent = 'Unknown';
-      }
+
+    try {
+      await FkUserAgent.init();
+      userAgent = FkUserAgent.webViewUserAgent;
+    } catch (_) {
+      userAgent = 'Unknown';
     }
 
     // Screen Resolution
@@ -175,8 +171,6 @@ class MatomoTracker {
 
     if (contentBaseUrl != null) {
       contentBase = contentBaseUrl;
-    } else if (kIsWeb) {
-      contentBase = html.window.location.href;
     } else {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       contentBase = 'https://${packageInfo.packageName}';
